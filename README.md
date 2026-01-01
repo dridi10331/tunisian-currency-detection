@@ -14,15 +14,6 @@ This project uses computer vision to detect and classify Tunisian currency (5, 1
 - Support for 4 denominations: 5 DT, 10 DT, 20 DT, 50 DT
 - High accuracy detection with YOLOv11
 
-## Model Performance
-
-| Metric | Value |
-|--------|-------|
-| mAP@0.5 | 94.2% |
-| Precision | 92.8% |
-| Recall | 91.5% |
-| F1-Score | 92.1% |
-| Inference Speed | ~50ms/frame |
 
 ## Dataset
 

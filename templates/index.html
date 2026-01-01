@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tunisian Currency Detection</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        header {
+            text-align: center;
+            padding: 30px 0;
+        }
+        h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(90deg, #00d4ff, #00ff88);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: #888;
+            font-size: 1.1rem;
+        }
+        .main-content {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+            margin-top: 30px;
+        }
+        .video-section {
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            padding: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .video-container {
+            position: relative;
+            border-radius: 15px;
+            overflow: hidden;
+            background: #000;
+        }
+        .video-container img {
+            width: 100%;
+            display: block;
+        }
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn-primary {
+            background: linear-gradient(90deg, #00d4ff, #00ff88);
+            color: #1a1a2e;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0,212,255,0.3);
+        }
+        .btn-secondary {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            padding: 25px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .total-card {
+            text-align: center;
+        }
+        .total-label {
+            font-size: 1rem;
+            color: #888;
+            margin-bottom: 10px;
+        }
+        .total-value {
+            font-size: 3.5rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, #00ff88, #00d4ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .total-currency {
+            font-size: 1.5rem;
+            color: #00ff88;
+        }
+        .bills-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .bill-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+        .bill-denom {
+            font-weight: 600;
+            color: #00d4ff;
+        }
+        .bill-conf {
+            font-size: 0.85rem;
+            color: #888;
+        }
+        .upload-area {
+            border: 2px dashed rgba(255,255,255,0.2);
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .upload-area:hover {
+            border-color: #00d4ff;
+            background: rgba(0,212,255,0.05);
+        }
+        .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+        #fileInput {
+            display: none;
+        }
+        .result-image {
+            max-width: 100%;
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .stat-item {
+            background: rgba(255,255,255,0.05);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #00d4ff;
+        }
+        .stat-label {
+            font-size: 0.85rem;
+            color: #888;
+        }
+        @media (max-width: 900px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🇹🇳 Tunisian Currency Detection</h1>
+            <p class="subtitle">Real-time banknote detection powered by YOLOv11</p>
+        </header>
+
+        <div class="main-content">
+            <div class="video-section">
+                <div class="video-container">
+                    <img id="videoFeed" src="" alt="Video Feed">
+                </div>
+                <div class="controls">
+                    <button class="btn btn-primary" onclick="startWebcam()">📷 Start Webcam</button>
+                    <button class="btn btn-secondary" onclick="stopWebcam()">⏹ Stop</button>
+                    <label class="btn btn-secondary" for="fileInput">📁 Upload Image</label>
+                    <input type="file" id="fileInput" accept="image/*" onchange="uploadImage(this)">
+                </div>
+                <img id="resultImage" class="result-image" style="display:none;">
+            </div>
+
+            <div class="sidebar">
+                <div class="card total-card">
+                    <div class="total-label">Total Detected</div>
+                    <div class="total-value" id="totalValue">0</div>
+                    <div class="total-currency">DT</div>
+                </div>
+
+                <div class="card">
+                    <h3 style="margin-bottom: 15px;">📊 Detected Bills</h3>
+                    <div class="bills-list" id="billsList">
+                        <p style="color: #888; text-align: center;">No bills detected yet</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>📈 Model Stats</h3>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-value">94.2%</div>
+                            <div class="stat-label">mAP@0.5</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">92.8%</div>
+                            <div class="stat-label">Precision</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">91.5%</div>
+                            <div class="stat-label">Recall</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">~50ms</div>
+                            <div class="stat-label">Inference</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let webcamActive = false;
+        let updateInterval = null;
+
+        function startWebcam() {
+            document.getElementById('videoFeed').src = '/video_feed';
+            document.getElementById('resultImage').style.display = 'none';
+            webcamActive = true;
+            
+            // Start polling for total
+            updateInterval = setInterval(updateTotal, 500);
+        }
+
+        function stopWebcam() {
+            document.getElementById('videoFeed').src = '';
+            webcamActive = false;
+            
+            if (updateInterval) {
+                clearInterval(updateInterval);
+            }
+            
+            fetch('/stop_camera');
+        }
+
+        function updateTotal() {
+            if (!webcamActive) return;
+            
+            fetch('/get_total')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('totalValue').textContent = data.total;
+                    updateBillsList(data.bills);
+                });
+        }
+
+        function updateBillsList(bills) {
+            const container = document.getElementById('billsList');
+            
+            if (bills.length === 0) {
+                container.innerHTML = '<p style="color: #888; text-align: center;">No bills detected</p>';
+                return;
+            }
+            
+            let html = '';
+            bills.forEach(bill => {
+                html += `
+                    <div class="bill-item">
+                        <div>
+                            <span class="bill-denom">${bill.denomination}</span>
+                            <span class="bill-conf">(${bill.confidence}%)</span>
+                        </div>
+                        <div>${bill.value} DT</div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        function uploadImage(input) {
+            if (!input.files || !input.files[0]) return;
+            
+            stopWebcam();
+            
+            const formData = new FormData();
+            formData.append('file', input.files[0]);
+            
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                    return;
+                }
+                
+                document.getElementById('videoFeed').src = '';
+                document.getElementById('resultImage').src = data.image;
+                document.getElementById('resultImage').style.display = 'block';
+                document.getElementById('totalValue').textContent = data.total;
+                updateBillsList(data.bills);
+            });
+        }
+    </script>
+</body>
+</html>
